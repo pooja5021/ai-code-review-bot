@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Code Review Bot</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    select {
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 80%;
+      height: 200px;
+      padding: 10px;
+      margin: 20px;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #22c55e;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #output {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🤖 AI Code Review Bot</h1>
+
+  <select id="language">
+    <option value="JavaScript">JavaScript</option>
+    <option value="Python">Python</option>
+    <option value="Java">Java</option>
+    <option value="C++">C++</option>
+    <option value="Go">Go</option>
+  </select>
+
+  <br>
+
+  <textarea id="codeInput" placeholder="Paste your code here..."></textarea><br>
+
+  <button onclick="reviewCode()">Review Code</button>
+
+  <div id="output"></div>
+
+  <script>
+    async function reviewCode() {
+      const code = document.getElementById("codeInput").value;
+      const language = document.getElementById("language").value;
+
+      if (!code) {
+        alert("Please paste code first!");
+        return;
+      }
+
+      document.getElementById("output").innerText = "⏳ Reviewing...";
+
+      try {
+        const response = await fetch("http://localhost:3000/review", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code, language })
+        });
+
+        const data = await response.json();
+
+        document.getElementById("output").innerText = data.review;
+      } catch (error) {
+        document.getElementById("output").innerText = "❌ Error connecting to server";
+      }
+    }
+  </script>
+
+</body>
+</html>
