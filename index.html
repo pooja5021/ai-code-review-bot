@@ -2,98 +2,155 @@
 <html>
 <head>
   <title>AI Code Review Bot</title>
-
   <style>
     body {
-      font-family: Arial;
-      background: #0f172a;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: white;
-      text-align: center;
-      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
 
-    select {
-      padding: 10px;
-      border-radius: 6px;
+    .container {
+      width: 90%;
+      max-width: 900px;
+      background: #111827;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    h1 {
       margin-bottom: 10px;
     }
 
+    select {
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
     textarea {
-      width: 80%;
+      width: 100%;
       height: 200px;
-      padding: 10px;
-      margin: 20px;
-      border-radius: 8px;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      background: #e5e7eb;
+      color: black;
+    }
+
+    .btn-group {
+      margin-top: 15px;
     }
 
     button {
       padding: 10px 20px;
+      margin: 5px;
       background: #22c55e;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #16a34a;
+      transform: scale(1.05);
     }
 
     #output {
       margin-top: 20px;
+      text-align: left;
       white-space: pre-wrap;
-      background: #1e293b;
+      background: #1f2937;
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .loader {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #9ca3af;
     }
   </style>
 </head>
 
 <body>
+  <div class="container">
+    <h1>🤖 AI Code Review Bot</h1>
 
-  <h1>🤖 AI Code Review Bot</h1>
+    <select id="language">
+      <option value="JavaScript">JavaScript</option>
+      <option value="Python">Python</option>
+      <option value="Java">Java</option>
+      <option value="C++">C++</option>
+      <option value="Go">Go</option>
+    </select>
 
-  <select id="language">
-    <option value="JavaScript">JavaScript</option>
-    <option value="Python">Python</option>
-    <option value="Java">Java</option>
-    <option value="C++">C++</option>
-    <option value="Go">Go</option>
-  </select>
+    <textarea id="codeInput" placeholder="Paste your code here..."></textarea>
 
-  <br>
+    <div class="btn-group">
+      <button onclick="reviewCode()">Review Code</button>
+      <button onclick="clearCode()">Clear</button>
+      <button onclick="copyText()">Copy Review</button>
+    </div>
 
-  <textarea id="codeInput" placeholder="Paste your code here..."></textarea><br>
-
-  <button onclick="reviewCode()">Review Code</button>
-
-  <div id="output"></div>
+    <div class="loader" id="loader"></div>
+    <div id="output"></div>
+  </div>
 
   <script>
     async function reviewCode() {
-  const code = document.getElementById("codeInput").value;
-  const language = document.getElementById("language").value;
+      const code = document.getElementById("codeInput").value;
+      const language = document.getElementById("language").value;
 
-  if (!code) {
-    alert("Please paste code first!");
-    return;
-  }
+      if (!code) {
+        alert("Paste code first");
+        return;
+      }
 
-  document.getElementById("output").innerText = "⏳ Reviewing...";
+      document.getElementById("loader").innerText = "⏳ Reviewing...";
+      document.getElementById("output").innerText = "";
 
-  try {
-    const response = await fetch("https://ai-code-review-bot-nc3b.onrender.com/review", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ code, language })
-    });
+      try {
+        const response = await fetch("https://ai-code-review-bot-nc3b.onrender.com/review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code, language })
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    document.getElementById("output").innerText = data.review;
+        document.getElementById("loader").innerText = "";
+        document.getElementById("output").innerText = data.review;
 
-  } catch (error) {
-    document.getElementById("output").innerText = "❌ Error connecting to server";
-  }
-}
+      } catch {
+        document.getElementById("loader").innerText = "";
+        document.getElementById("output").innerText = "❌ Error connecting to server";
+      }
+    }
+
+    function clearCode() {
+      document.getElementById("codeInput").value = "";
+      document.getElementById("output").innerText = "";
+    }
+
+    function copyText() {
+      const text = document.getElementById("output").innerText;
+      navigator.clipboard.writeText(text);
+      alert("Copied!");
+    }
   </script>
 </body>
 </html>
